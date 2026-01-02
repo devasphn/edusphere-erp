@@ -13,43 +13,66 @@ export const generateStrategicAdvice = async (
   userQuery: string,
   additionalContext: string = ""
 ): Promise<string> => {
+  const ai = getClient();
+  
+  // Strategy: Try the powerful Pro model first. 
+  // If it hits a quota limit (429), fallback to the Flash model.
+  const primaryModel = "gemini-3-pro-preview";
+  const fallbackModel = "gemini-3-flash-preview";
+
+  const fullPrompt = `
+    ${SYSTEM_CONTEXT}
+    
+    Additional Context Provided:
+    ${additionalContext}
+
+    User Query:
+    ${userQuery}
+
+    Please provide a comprehensive, strategic response. Structure your answer with clear headings, analysis, and actionable steps.
+  `;
+
   try {
-    const ai = getClient();
-    
-    // Using gemini-3-pro-preview for deep reasoning as requested
-    const modelId = "gemini-3-pro-preview";
-    
-    // Combining system context with specific runtime data
-    const fullPrompt = `
-      ${SYSTEM_CONTEXT}
-      
-      Additional Context Provided:
-      ${additionalContext}
-
-      User Query:
-      ${userQuery}
-
-      Please provide a comprehensive, strategic response. Structure your answer with clear headings, analysis, and actionable steps.
-    `;
-
+    // Attempt 1: Gemini 3 Pro (Deep Thinking)
     const response = await ai.models.generateContent({
-      model: modelId,
+      model: primaryModel,
       contents: fullPrompt,
       config: {
-        // Enforcing Thinking Mode with High Budget for complex reasoning
         thinkingConfig: {
-          thinkingBudget: 32768, // Max for Gemini 3 Pro
+          thinkingBudget: 16384, // Reduced slightly to try and fit quota better
         },
-        // Explicitly NOT setting maxOutputTokens as per instructions to allow full thinking output
       },
     });
 
-    if (response.text) {
-      return response.text;
+    if (response.text) return response.text;
+    throw new Error("Empty response from Pro model");
+
+  } catch (error: any) {
+    // Check for Quota Exceeded (429) or Service Unavailable (503)
+    if (error.message?.includes("429") || error.message?.includes("Quota") || error.status === 429) {
+      console.warn(`Primary model (${primaryModel}) quota exceeded. Falling back to ${fallbackModel}.`);
+      
+      try {
+        // Attempt 2: Gemini 3 Flash (Standard Speed, High Availability)
+        const fallbackResponse = await ai.models.generateContent({
+          model: fallbackModel,
+          contents: fullPrompt,
+          config: {
+            // Flash models often handle thinking budgets differently or not at all in preview,
+            // so we disable explicit thinking budget to ensure high success rate.
+            thinkingConfig: { thinkingBudget: 0 } 
+          },
+        });
+        
+        if (fallbackResponse.text) {
+          return `(Note: Switched to High-Speed Model due to traffic)\n\n${fallbackResponse.text}`;
+        }
+      } catch (fallbackError) {
+        console.error("Fallback model also failed:", fallbackError);
+        return "System is currently experiencing very high traffic. Please try again in 1 minute.";
+      }
     }
     
-    throw new Error("No text returned from Gemini.");
-  } catch (error) {
     console.error("Gemini API Error:", error);
     if (error instanceof Error) {
         return `Error generating advice: ${error.message}`;
@@ -61,7 +84,6 @@ export const generateStrategicAdvice = async (
 export const quickAnalysis = async (dataPayload: string): Promise<string> => {
   try {
     const ai = getClient();
-    // Using flash for quicker, less intensive tasks
     const modelId = "gemini-3-flash-preview"; 
 
     const response = await ai.models.generateContent({
@@ -79,7 +101,7 @@ export const quickAnalysis = async (dataPayload: string): Promise<string> => {
 export const getChatbotResponse = async (history: {role: string, content: string}[], message: string): Promise<string> => {
   try {
     const ai = getClient();
-    const modelId = "gemini-3-flash-preview"; // Fast model for chat
+    const modelId = "gemini-3-flash-preview"; 
 
     const chat = ai.chats.create({
       model: modelId,
