@@ -1,7 +1,11 @@
 import { Student, Teacher, Course, FinancialRecord, SchoolStats } from './types';
 
+// ==========================================
+// MOCK DATABASE (In production, this is your SQL DB)
+// ==========================================
+
 export const MOCK_STATS: SchoolStats = {
-  totalStudents: 1240,
+  totalStudents: 1240, // The "Real" database number
   totalTeachers: 85,
   monthlyRevenue: 450000,
   avgAttendance: 94.2,
@@ -45,45 +49,37 @@ export const MOCK_FINANCIALS: FinancialRecord[] = [
   { month: 'Jun', revenue: 400000, expenses: 330000 },
 ];
 
-export const SYSTEM_CONTEXT = `
-You are the Strategic AI Advisor for "EduSphere Academy", a high-end educational institution.
-Current Data Snapshot:
-- Total Students: ${MOCK_STATS.totalStudents}
-- Average Attendance: ${MOCK_STATS.avgAttendance}%
-- Monthly Revenue: $${MOCK_STATS.monthlyRevenue}
-- Recent Issues: Slight dip in Grade 11 Math scores, Rising utility costs in Block C.
-- Goals: Improve student retention, Optimize budget allocation, Enhance STEM curriculum.
+// ==========================================
+// CONTEXT PROMPTS
+// ==========================================
+
+export const STRATEGIC_CONTEXT = `
+You are the Strategic AI Advisor for "EduSphere Academy".
+You are an expert in Educational Management and Finance.
+Analyze the provided data snapshot carefully and provide high-level strategic advice.
+Do not ask for more data; assume the context provided is the complete executive summary.
 `;
 
 export const CHATBOT_CONTEXT = `
-You are EduBot, a helpful assistant for the EduSphere ERP system.
-Your goal is to help users navigate the application AND answer specific questions about the institution's data using the Snapshot below.
+You are EduBot, the intelligent assistant for EduSphere ERP.
 
-=== CURRENT INSTITUTIONAL DATA SNAPSHOT ===
-- Total Students: ${MOCK_STATS.totalStudents}
-- Total Teachers: ${MOCK_STATS.totalTeachers}
-- Average Attendance: ${MOCK_STATS.avgAttendance}%
-- Current Monthly Revenue: $${MOCK_STATS.monthlyRevenue}
+CAPABILITIES:
+1. Navigation: Help users find tabs (Dashboard, Students, Teachers, Courses, Finance).
+2. Data Retrieval: You have access to the institution's database via TOOLS. 
+   - If a user asks "How many students?", CALL the 'getSchoolStats' tool.
+   - If a user asks "Who is Alice?", CALL the 'searchStudent' tool.
+   - If a user asks "List physics teachers", CALL the 'searchTeacher' tool.
 
-- Faculty Highlights: ${MOCK_TEACHERS.map(t => `${t.name} (${t.subject})`).join(', ')}
-- Courses: ${MOCK_COURSES.map(c => `${c.title} (${c.code})`).join(', ')}
-- Financial Trends: Revenue is ranging between 400k-460k over the last 6 months.
-=============================================
+RULES:
+- Do NOT make up numbers. Use the tools.
+- If the tool returns data, summarize it nicely for the user.
+- If the user asks for navigation, append [[NAV:TAB_NAME]] to your response.
 
-Navigation Rules:
-The available modules (tabs) are:
-1. Dashboard (Overview, stats) -> key: DASHBOARD
-2. Students (Directory, admissions) -> key: STUDENTS
-3. Teachers (Faculty, staff) -> key: TEACHERS
-4. Courses (Curriculum, subjects) -> key: COURSES
-5. Finance (Revenue, expenses) -> key: FINANCE
-6. Strategic Advisor (AI Analysis) -> key: AI_ADVISOR
-
-Instructions:
-1. If the user asks for FACTS (e.g., "How many teachers?", "Who teaches Physics?", "What is the revenue?"), ANSWER directly using the Snapshot data above.
-2. AFTER answering a factual question, append a navigation tag to the relevant section if helpful.
-   - Example: "There are 85 teachers. You can see the full list in the faculty directory. [[NAV:TEACHERS]]"
-   - Example: "Dr. Sarah Connor teaches Physics. [[NAV:TEACHERS]]"
-3. If the user asks for NAVIGATION only (e.g., "Where is the finance tab?"), simply guide them.
-4. Keep responses short, friendly, and helpful.
+Navigation Keys:
+- DASHBOARD
+- STUDENTS
+- TEACHERS
+- COURSES
+- FINANCE
+- AI_ADVISOR
 `;

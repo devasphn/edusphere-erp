@@ -4,6 +4,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Students } from './pages/Students';
 import { Teachers } from './pages/Teachers';
 import { Courses } from './pages/Courses';
+import { Finance } from './pages/Finance';
 import { AIAdvisor } from './pages/AIAdvisor';
 import { FloatingChatbot } from './components/FloatingChatbot';
 import { NavigationTab } from './types';
@@ -23,15 +24,7 @@ const App: React.FC = () => {
       case NavigationTab.COURSES:
         return <Courses />;
       case NavigationTab.FINANCE:
-        return (
-          <div className="flex flex-col items-center justify-center h-[60vh] text-red-400 animate-fade-in">
-             <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <span className="text-4xl">💰</span>
-             </div>
-             <h2 className="text-2xl font-bold text-red-700">Finance Module</h2>
-             <p>Detailed ledgers coming in next update.</p>
-          </div>
-        );
+        return <Finance />;
       case NavigationTab.AI_ADVISOR:
         return <AIAdvisor />;
       default:
