@@ -1,10 +1,12 @@
 import React from 'react';
-import { MOCK_STATS, MOCK_FINANCIALS, MOCK_STUDENTS } from '../constants';
+import { useData } from '../context/DataContext';
 import { StatCard } from '../components/StatCard';
 import { Users, GraduationCap, DollarSign, TrendingUp, Calendar } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export const Dashboard: React.FC = () => {
+  const { stats, financials, students } = useData();
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
@@ -15,7 +17,7 @@ export const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Total Students" 
-          value={MOCK_STATS.totalStudents} 
+          value={stats.totalStudents} 
           trend={2.5} 
           trendLabel="vs last month"
           icon={Users}
@@ -23,7 +25,7 @@ export const Dashboard: React.FC = () => {
         />
         <StatCard 
           title="Avg. Attendance" 
-          value={`${MOCK_STATS.avgAttendance}%`} 
+          value={`${stats.avgAttendance}%`} 
           trend={-0.8} 
           trendLabel="vs last week"
           icon={Calendar}
@@ -31,7 +33,7 @@ export const Dashboard: React.FC = () => {
         />
         <StatCard 
           title="Revenue (Monthly)" 
-          value={`$${(MOCK_STATS.monthlyRevenue / 1000).toFixed(0)}k`} 
+          value={`$${(stats.monthlyRevenue / 1000).toFixed(0)}k`} 
           trend={5.2} 
           trendLabel="vs last month"
           icon={DollarSign}
@@ -62,7 +64,7 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={MOCK_FINANCIALS}>
+              <BarChart data={financials}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#fee2e2" />
                 <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#b91c1c'}} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#b91c1c'}} tickFormatter={(val) => `$${val/1000}k`} />
@@ -81,7 +83,7 @@ export const Dashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-red-100">
           <h3 className="text-lg font-bold text-red-900 mb-6">Recent Enrollees</h3>
           <div className="space-y-4">
-            {MOCK_STUDENTS.slice(0, 5).map((student) => (
+            {students.slice(0, 5).map((student) => (
               <div key={student.id} className="flex items-center gap-4 p-3 hover:bg-red-50 rounded-xl transition-colors">
                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-sm">
                   {student.name.charAt(0)}

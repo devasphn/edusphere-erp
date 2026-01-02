@@ -9,8 +9,9 @@ import { AIAdvisor } from './pages/AIAdvisor';
 import { FloatingChatbot } from './components/FloatingChatbot';
 import { NavigationTab } from './types';
 import { Bell, Search, UserCircle } from 'lucide-react';
+import { DataProvider } from './context/DataContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavigationTab>(NavigationTab.DASHBOARD);
 
   const renderContent = () => {
@@ -79,6 +80,14 @@ const App: React.FC = () => {
       {/* Intelligent Floating Chatbot */}
       <FloatingChatbot onNavigate={setActiveTab} />
     </div>
+  );
+}
+
+const App: React.FC = () => {
+  return (
+    <DataProvider>
+      <AppContent />
+    </DataProvider>
   );
 };
 

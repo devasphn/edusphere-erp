@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { generateStrategicAdvice } from '../services/geminiService';
-import { MOCK_STATS, MOCK_FINANCIALS } from '../constants';
-import { BrainCircuit, Send, Sparkles, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
+import { useData } from '../context/DataContext';
+import { BrainCircuit, Send, Sparkles, CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 const SUGGESTIONS = [
@@ -12,13 +12,13 @@ const SUGGESTIONS = [
 ];
 
 export const AIAdvisor: React.FC = () => {
+  const { stats, financials } = useData();
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0); // For animating the "thinking" state
+  const [loadingStep, setLoadingStep] = useState(0); 
   const responseEndRef = useRef<HTMLDivElement>(null);
 
-  // Animate thinking steps because 32k budget takes time
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (loading) {
@@ -42,9 +42,10 @@ export const AIAdvisor: React.FC = () => {
     setResponse(null);
     setLoadingStep(0);
 
+    // Use dynamic data from context
     const contextData = `
-      Current Stats: ${JSON.stringify(MOCK_STATS)}
-      Financials (Last 6 Months): ${JSON.stringify(MOCK_FINANCIALS)}
+      Current Stats: ${JSON.stringify(stats)}
+      Financials (Last 6 Months): ${JSON.stringify(financials)}
     `;
 
     try {

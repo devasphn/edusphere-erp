@@ -1,5 +1,6 @@
 import { GoogleGenAI, FunctionDeclaration, Type } from "@google/genai";
-import { STRATEGIC_CONTEXT, CHATBOT_CONTEXT, MOCK_STATS, MOCK_STUDENTS, MOCK_TEACHERS } from "../constants";
+import { STRATEGIC_CONTEXT, CHATBOT_CONTEXT } from "../constants";
+import { db } from "./database";
 
 // ==========================================
 // TOOL DEFINITIONS (The "API" the AI can call)
@@ -50,16 +51,16 @@ const searchTeacherTool: FunctionDeclaration = {
 
 const tools = {
   getSchoolStats: () => {
-    return MOCK_STATS;
+    return db.getStats();
   },
   searchStudent: (args: { name: string }) => {
-    const student = MOCK_STUDENTS.find(s => s.name.toLowerCase().includes(args.name.toLowerCase()));
+    const student = db.getStudents().find(s => s.name.toLowerCase().includes(args.name.toLowerCase()));
     if (student) return student;
     return { error: "Student not found in the database." };
   },
   searchTeacher: (args: { query: string }) => {
     const term = args.query.toLowerCase();
-    const teachers = MOCK_TEACHERS.filter(t => 
+    const teachers = db.getTeachers().filter(t => 
       t.name.toLowerCase().includes(term) || 
       t.subject.toLowerCase().includes(term)
     );
