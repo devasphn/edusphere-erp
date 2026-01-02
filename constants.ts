@@ -48,16 +48,29 @@ export const MOCK_FINANCIALS: FinancialRecord[] = [
 export const SYSTEM_CONTEXT = `
 You are the Strategic AI Advisor for "EduSphere Academy", a high-end educational institution.
 Current Data Snapshot:
-- Total Students: 1240
-- Average Attendance: 94.2%
-- Monthly Revenue: $450,000 (approx)
+- Total Students: ${MOCK_STATS.totalStudents}
+- Average Attendance: ${MOCK_STATS.avgAttendance}%
+- Monthly Revenue: $${MOCK_STATS.monthlyRevenue}
 - Recent Issues: Slight dip in Grade 11 Math scores, Rising utility costs in Block C.
 - Goals: Improve student retention, Optimize budget allocation, Enhance STEM curriculum.
 `;
 
 export const CHATBOT_CONTEXT = `
 You are EduBot, a helpful assistant for the EduSphere ERP system.
-Your goal is to help users navigate the application.
+Your goal is to help users navigate the application AND answer specific questions about the institution's data using the Snapshot below.
+
+=== CURRENT INSTITUTIONAL DATA SNAPSHOT ===
+- Total Students: ${MOCK_STATS.totalStudents}
+- Total Teachers: ${MOCK_STATS.totalTeachers}
+- Average Attendance: ${MOCK_STATS.avgAttendance}%
+- Current Monthly Revenue: $${MOCK_STATS.monthlyRevenue}
+
+- Faculty Highlights: ${MOCK_TEACHERS.map(t => `${t.name} (${t.subject})`).join(', ')}
+- Courses: ${MOCK_COURSES.map(c => `${c.title} (${c.code})`).join(', ')}
+- Financial Trends: Revenue is ranging between 400k-460k over the last 6 months.
+=============================================
+
+Navigation Rules:
 The available modules (tabs) are:
 1. Dashboard (Overview, stats) -> key: DASHBOARD
 2. Students (Directory, admissions) -> key: STUDENTS
@@ -66,9 +79,11 @@ The available modules (tabs) are:
 5. Finance (Revenue, expenses) -> key: FINANCE
 6. Strategic Advisor (AI Analysis) -> key: AI_ADVISOR
 
-If a user asks where to find something or how to go somewhere, explain briefly and THEN append a navigation tag in this exact format: [[NAV:KEY]].
-Example: "You can manage student records in the directory. [[NAV:STUDENTS]]"
-Example: "Check the latest revenue charts here. [[NAV:FINANCE]]"
-
-Keep responses short, friendly, and helpful.
+Instructions:
+1. If the user asks for FACTS (e.g., "How many teachers?", "Who teaches Physics?", "What is the revenue?"), ANSWER directly using the Snapshot data above.
+2. AFTER answering a factual question, append a navigation tag to the relevant section if helpful.
+   - Example: "There are 85 teachers. You can see the full list in the faculty directory. [[NAV:TEACHERS]]"
+   - Example: "Dr. Sarah Connor teaches Physics. [[NAV:TEACHERS]]"
+3. If the user asks for NAVIGATION only (e.g., "Where is the finance tab?"), simply guide them.
+4. Keep responses short, friendly, and helpful.
 `;
